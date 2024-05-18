@@ -1,0 +1,16 @@
+[
+  {
+    "label": "Rocket League",
+    "description": "Rocket League GS",
+    "value": "rl",
+    "emoji": "🏎️",
+    "image": "https://i.imgur.com/F3E7Jvg.png"
+  },
+  {
+    "label": "Valorant",
+    "description": "Valorant GS",
+    "value": "vl",
+    "emoji": "🎮",
+    "image": "https://i.imgur.com/UOQFtdu.png"
+  }
+]
