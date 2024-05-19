@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A discord bot for Greenstar Esport Team",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,6 +17,7 @@
   },
   "homepage": "https://github.com/Sowin1/greenstarbot#readme",
   "dependencies": {
+    "canvas": "^2.11.2",
     "discord.js": "^14.15.2",
     "fs": "^0.0.1-security",
     "path": "^0.12.7"

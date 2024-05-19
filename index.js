@@ -3,13 +3,16 @@ const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const { token } = require("./config.json");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+});
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
+// Charger les commandes
 for (const folder of commandFolders) {
   const commandsPath = path.join(foldersPath, folder);
   const commandFiles = fs
@@ -30,6 +33,12 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  // Exporter le client après qu'il soit prêt
+  const { streamId } = require("./config.json");
+  const channel = client.channels.cache.get(streamId);
+  console.log(channel);
+
+  module.exports = { client, channel };
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

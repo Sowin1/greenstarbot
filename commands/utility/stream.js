@@ -1,4 +1,4 @@
-const {
+/*const {
   ActionRowBuilder,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
@@ -9,7 +9,8 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 
-const games = require("");
+const { client, channel } = require("../../index.js");
+const games = require("../elements/games.json");
 
 module.exports = {
   cooldown: 5,
@@ -75,10 +76,10 @@ module.exports = {
     const cast = interaction.options.getString("cast");
     const lg = interaction.options.getString("discord") ?? "N/A";
     const hour = interaction.options.getString("heure") ?? "N/A";
-    const choicecast = cast ? "Oui" : "Non";
+    const choicecast = cast === "Oui" ? "Oui" : "Non";
 
     const selectMenu = new StringSelectMenuBuilder()
-      .setCustomId(interaction.id)
+      .setCustomId(interaction.id + "_select")
       .setPlaceholder("Sélectionnez un jeu")
       .addOptions(
         games.map((game) =>
@@ -92,7 +93,6 @@ module.exports = {
 
     const actionRow = new ActionRowBuilder().addComponents(selectMenu);
 
-    // Réponse initiale pour accuser réception
     await interaction.deferReply({ ephemeral: true });
 
     const reply = await interaction.editReply({
@@ -104,7 +104,8 @@ module.exports = {
     const collector = reply.createMessageComponentCollector({
       componentType: ComponentType.StringSelect,
       filter: (i) =>
-        i.user.id === interaction.user.id && i.customId === interaction.id,
+        i.user.id === interaction.user.id &&
+        i.customId === interaction.id + "_select",
       time: 60_000,
     });
 
@@ -117,11 +118,18 @@ module.exports = {
         return;
       }
 
-      // Name of game choose
+      collector.on("end", (collected) => {
+        if (!collected.size) {
+          interaction.editReply({
+            content: "Temps écoulé, vous n'avez pas sélectionné de jeux.",
+            ephemeral: true,
+          });
+        }
+      });
+
       const selectedGames = i.values.map(
         (value) => games.find((game) => game.value === value).label
       );
-      // Picture choose
       const selectedImages = i.values.map(
         (value) => games.find((game) => game.value === value).image
       );
@@ -129,7 +137,6 @@ module.exports = {
       console.log(selectedGames);
       console.log(selectedImages);
 
-      // Embed Builder
       const planningStream = new EmbedBuilder()
         .setColor(0x00ff83)
         .setTitle(`**${name}**`)
@@ -148,7 +155,6 @@ module.exports = {
           { name: "Nécessite une demande de cast ?", value: `${choicecast}` },
           { name: "Date du tournoi", value: `${date}` },
           { name: "Heure du tournoi", value: `${hour}` },
-
           { name: "Lien du tournoi", value: `${link}`, inline: true },
           { name: "Lien du discord", value: `${lg}`, inline: true }
         )
@@ -160,32 +166,57 @@ module.exports = {
             "https://cdn.discordapp.com/avatars/375933463255056384/4b76fdbbef70debdb9385a0f14c5b767.webp?size=32",
         });
 
-      // Confirmation create
       const confirm = new ButtonBuilder()
-        .setCustomId("Validé")
+        .setCustomId(interaction.id + "_valid")
         .setLabel("Validé la demande")
         .setStyle(ButtonStyle.Success);
 
       const cancel = new ButtonBuilder()
-        .setCustomId("Annuler")
+        .setCustomId(interaction.id + "_cancel")
         .setLabel("Annulé la demande")
         .setStyle(ButtonStyle.Danger);
 
-      const row = new ActionRowBuilder().addComponents(cancel, confirm);
+      const validate = new ActionRowBuilder().addComponents(cancel, confirm);
 
       await i.update({
         embeds: [planningStream],
+        components: [validate],
         ephemeral: true,
       });
-    });
 
-    collector.on("end", (collected) => {
-      if (!collected.size) {
-        interaction.editReply({
-          content: "Temps écoulé, vous n'avez pas sélectionné de jeux.",
-          ephemeral: true,
-        });
-      }
+      const buttonCollector = i.message.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (btnInt) =>
+          btnInt.user.id === interaction.user.id &&
+          (btnInt.customId === interaction.id + "_valid" ||
+            btnInt.customId === interaction.id + "_cancel"),
+        time: 60_000,
+      });
+
+      buttonCollector.on("collect", async (btnInt) => {
+        if (btnInt.customId === interaction.id + "_valid") {
+          console.log("Bouton Validé appuyé !");
+
+          if (channel) {
+            await channel.send("content");
+          } else {
+            console.error("Le canal est undefined");
+          }
+        } else if (btnInt.customId === interaction.id + "_cancel") {
+          console.log("Bouton Annuler appuyé !");
+          await btnInt.reply({ content: "Demande annulée.", ephemeral: true });
+        }
+      });
+
+      buttonCollector.on("end", async (collected) => {
+        if (!collected.size) {
+          await interaction.editReply({
+            content:
+              "Temps écoulé, vous n'avez pas validé ou annulé la demande.",
+            ephemeral: true,
+          });
+        }
+      });
     });
   },
-};
+}; */
