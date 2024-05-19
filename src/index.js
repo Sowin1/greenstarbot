@@ -17,6 +17,7 @@ new CommandKit({
   devUserIds: ["375933463255056384"],
   commandsPath: `${__dirname}/commands`,
   eventsPath: `${__dirname}/events`,
+  validationsPath: `${__dirname}/validations`,
   bulkRegister: true, // Delete un use commands from discord
 });
 
