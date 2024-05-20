@@ -7,8 +7,12 @@ const {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  ChannelType,
 } = require("discord.js");
 const games = require("./games.json");
+require("dotenv/config");
+
+const channelIdentifier = process.env.CHANNELSTREAM;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -65,6 +69,7 @@ module.exports = {
         .setRequired(false)
     ),
   run: async ({ interaction, client, handler }) => {
+    const userMessage = interaction.user;
     const name = interaction.options.getString("nom");
     const desc = interaction.options.getString("description");
     const date = interaction.options.getString("date");
@@ -113,15 +118,6 @@ module.exports = {
         });
         return;
       }
-
-      collector.on("end", (collected) => {
-        if (!collected.size) {
-          interaction.editReply({
-            content: "Temps écoulé, vous n'avez pas sélectionné de jeux.",
-            ephemeral: true,
-          });
-        }
-      });
 
       const selectedGames = i.values.map(
         (value) => games.find((game) => game.value === value).label
@@ -193,14 +189,41 @@ module.exports = {
         if (btnInt.customId === interaction.id + "_valid") {
           console.log("Bouton Validé appuyé !");
 
-          if (channel) {
-            await channel.send("content");
+          let targetChannel = client.channels.cache.get(channelIdentifier);
+          if (!targetChannel) {
+            targetChannel = client.channels.cache.find(
+              (channel) => channel.name === channelIdentifier
+            );
+          }
+
+          if (targetChannel && targetChannel.type === ChannelType.GuildText) {
+            await targetChannel.send({
+              embeds: [planningStream],
+              content: `**Demande faites par ${userMessage.globalName}** | <@375933463255056384> `,
+            });
+
+            await btnInt.update({
+              content: "Demande validée.",
+              ephemeral: true,
+            });
           } else {
-            console.error("Le canal est undefined");
+            console.error(
+              "Le canal est undefined ou n'est pas un canal textuel"
+            );
+            await btnInt.update({
+              content:
+                "Erreur: Le canal est undefined ou n'est pas un canal textuel.",
+              ephemeral: true,
+            });
           }
         } else if (btnInt.customId === interaction.id + "_cancel") {
           console.log("Bouton Annuler appuyé !");
-          await btnInt.reply({ content: "Demande annulée.", ephemeral: true });
+          await btnInt.update({
+            content: "Demande annulée.",
+            embeds: [],
+            components: [],
+            ephemeral: true,
+          });
         }
       });
 
