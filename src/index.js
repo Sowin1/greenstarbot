@@ -18,7 +18,7 @@ new CommandKit({
   commandsPath: `${__dirname}/commands`,
   eventsPath: `${__dirname}/events`,
   validationsPath: `${__dirname}/validations`,
-  bulkRegister: true, // Delete un use commands from discord
+  bulkRegister: true, // Delete an unused commands from discord
 });
 
 client.login(process.env.TOKEN);

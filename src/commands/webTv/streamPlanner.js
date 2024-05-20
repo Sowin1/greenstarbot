@@ -126,9 +126,6 @@ module.exports = {
         (value) => games.find((game) => game.value === value).image
       );
 
-      console.log(selectedGames);
-      console.log(selectedImages);
-
       const planningStream = new EmbedBuilder()
         .setColor(0x00ff83)
         .setTitle(`**${name}**`)
@@ -143,7 +140,7 @@ module.exports = {
           "https://cdn.discordapp.com/icons/808260926591467531/2e6c0aa025a2460b14255e44fce4c483.webp?size=240"
         )
         .addFields(
-          { name: "Description du tournois", value: `${desc}` },
+          { name: "Description du tournoi", value: `${desc}` },
           { name: "Nécessite une demande de cast ?", value: `${choicecast}` },
           { name: "Date du tournoi", value: `${date}` },
           { name: "Heure du tournoi", value: `${hour}` },
@@ -160,12 +157,12 @@ module.exports = {
 
       const confirm = new ButtonBuilder()
         .setCustomId(interaction.id + "_valid")
-        .setLabel("Validé la demande")
+        .setLabel("Valider la demande")
         .setStyle(ButtonStyle.Success);
 
       const cancel = new ButtonBuilder()
         .setCustomId(interaction.id + "_cancel")
-        .setLabel("Annulé la demande")
+        .setLabel("Annuler la demande")
         .setStyle(ButtonStyle.Danger);
 
       const validate = new ActionRowBuilder().addComponents(cancel, confirm);
@@ -187,7 +184,7 @@ module.exports = {
 
       buttonCollector.on("collect", async (btnInt) => {
         if (btnInt.customId === interaction.id + "_valid") {
-          console.log("Bouton Validé appuyé !");
+          console.log("Bouton Valider appuyé !");
 
           let targetChannel = client.channels.cache.get(channelIdentifier);
           if (!targetChannel) {
@@ -199,20 +196,21 @@ module.exports = {
           if (targetChannel && targetChannel.type === ChannelType.GuildText) {
             await targetChannel.send({
               embeds: [planningStream],
-              content: `**Demande faites par ${userMessage.globalName}** | <@375933463255056384> `,
+              content: `**Demande faite par ${userMessage.tag}** | <@&835079273731063809>`,
             });
 
             await btnInt.update({
               content: "Demande validée.",
+              embeds: [],
+              components: [],
               ephemeral: true,
             });
           } else {
-            console.error(
-              "Le canal est undefined ou n'est pas un canal textuel"
-            );
+            console.error("Le canal est undefined ou n'est pas un canal textuel");
             await btnInt.update({
-              content:
-                "Erreur: Le canal est undefined ou n'est pas un canal textuel.",
+              content: "Erreur : Le canal est undefined ou n'est pas un canal textuel.",
+              embeds: [],
+              components: [],
               ephemeral: true,
             });
           }
@@ -230,8 +228,8 @@ module.exports = {
       buttonCollector.on("end", async (collected) => {
         if (!collected.size) {
           await interaction.editReply({
-            content:
-              "Temps écoulé, vous n'avez pas validé ou annulé la demande.",
+            content: "Temps écoulé, vous n'avez pas validé ou annulé la demande.",
+            components: [],
             ephemeral: true,
           });
         }
@@ -239,9 +237,6 @@ module.exports = {
     });
   },
   options: {
-    devOnly: true,
     userPermissions: ["Administrator"],
-    //cooldown: "1d",
-    //deleted: true,
   },
 };
