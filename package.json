@@ -10,6 +10,7 @@
   "dependencies": {
     "commandkit": "^0.1.9",
     "discord.js": "^14.15.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "twitter-api-v2": "^1.16.4"
   }
 }
